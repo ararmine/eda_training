@@ -9,7 +9,7 @@
 
 /// Type aliases
 typedef unsigned int IndexType;
-typedef double ElementType;
+typedef float ElementType;
 
 struct Matrix {
         Matrix() {}
@@ -24,18 +24,35 @@ struct Matrix {
 };
 
 struct InputFile {
-        InputFile(const std::string& fname) {
+        std::ifstream fin;
+        std::string name;
+
+        InputFile(const std::string& fname) : name(fname) {
+                fin.open(fname);
         }
-        bool isOpen() {
+        bool isOpen() const {
+                return fin.is_open();
         }
 };
 
 struct OutputFile {
-        OutputFile(const std::string& fname) {
+        std::ofstream fout;
+        std::string name;
+
+        OutputFile(const std::string& fname) : name(fname) {
+                fout.open(fname);
         }
-        bool isOpen() {
+        bool isOpen() const {
+                fout.is_open();
         }
 };
 
+void matrixExp();
+
+bool readMatrix(InputFile &f, Matrix &x);
+void writeMatrix(OutputFile &f, const Matrix &y, IndexType n);
+bool skipSymbols(std::ifstream& ifs);
+void resizeMatrix(Matrix &m, IndexType r, IndexType c);
+void reportError(const std::string& errMsg);
 
 #endif // MATRIX_H

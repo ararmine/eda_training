@@ -1,14 +1,65 @@
 #include "matrix.h"
-
 #include <cassert>
 #include <string>
 
-bool readMatrix(const InputFile &f, Matrix &x) {
-        return false;
+bool skipSymbols(std::ifstream& ifs) {
+        while (ifs.good() && !std::isdigit(ifs.peek())) {
+                if (ifs.peek() == '#') {
+                        ifs.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                } else {
+                        ifs.ignore(1);
+                }
+        }
+        return ifs.good();
 }
 
-bool writeMatrix(OutputFile &f, const Matrix &y) {
-        return false;
+bool readMatrix(InputFile &f, Matrix &x) {
+        assert(f.isOpen());
+
+        IndexType rcount = 0, ccount = 0;
+
+        if (!skipSymbols(f.fin)) {
+                return false;
+        }
+        f.fin >> rcount;
+        if (!skipSymbols(f.fin)) {
+                return false;
+        }
+        f.fin >> ccount;
+        resizeMatrix(x, rcount, ccount);
+        for (IndexType i = 0; i < rcount; ++i) {
+                for (IndexType j = 0; j < ccount; ++j) {
+                        ElementType d = 0;
+                        if (!skipSymbols(f.fin)) {
+                                return false;
+                        }
+                        f.fin >> d;
+                        x.setElement(i, j, d);
+                }
+        }
+        return true;
+}
+
+void writeMatrix(OutputFile &f, const Matrix &y, IndexType n) {
+        if (!f.isOpen()) {
+                reportError("Cannot open file to write");
+                exit(1);
+        }
+        f.fout << "# Matrix " << std::to_string(n) << '\n';
+        IndexType r = y.getHeight();
+        IndexType c = y.getWidth();
+
+        f.fout << r << ", " << c << '\n';
+        for (IndexType i = 0; i < r; i++) {
+                for (IndexType j = 0; j < c; j++) {
+                        if (j != 0) {
+                                f.fout << ", ";
+                        }
+                        f.fout << y.getElement(i, j);
+                }
+                f.fout << '\n';
+        }
+        f.fout << '\n';
 }
 
 void resizeMatrix(Matrix &m, IndexType r, IndexType c) {
@@ -43,17 +94,19 @@ void multMatrix(const Matrix &m1, const Matrix &m2, Matrix &x) {
 
 bool checkCompatibility(const Matrix &m1, const Matrix &m2,
                         const Matrix &m3, const Matrix &m4) {
-        return true;
+        return m1.getHeight() == m2.getHeight() && m1.getWidth() == m2.getWidth() &&
+               m3.getHeight() == m4.getHeight() && m3.getWidth() == m4.getWidth() &&
+               m1.getWidth() == m3.getHeight();
 }
 
 void reportError(const std::string& errMsg) {
+        std::cerr << errMsg << '\n';
 }
 
-int main() {
+void matrixExp() {
         InputFile A("A.txt"), B("B.txt"), C("C.txt"), D("D.txt");
         OutputFile Y("Y.txt");
         if (A.isOpen() && B.isOpen() && C.isOpen() && D.isOpen()) {
-
                 Matrix a, b, c, d;
                 for (IndexType i = 0;
                                 readMatrix(A, a) && readMatrix(B, b) &&
@@ -68,8 +121,10 @@ int main() {
                         addMatrix(a, b, x1);
                         addMatrix(c, d, x2);
                         multMatrix(x1, x2, y);
-                        writeMatrix(Y, y);
+                        writeMatrix(Y, y, i);
                 }
+        } else {
+                reportError("Cannot open files");
+                exit(1);
         }
-        return 0;
 }

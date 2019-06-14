@@ -27,7 +27,7 @@ $(LIB_PATH)/$(TARGET): $(OBJ_PATH)/$(OBJECTS)
 
 $(OBJ_PATH)/%.o: $(SRC_PATH)/%.cpp
 		@mkdir -p $(OBJ_PATH)
-		$(CC) -c -std=c++11 $(DEBUG) -fPIC $^ -I$(INCLUDE_PATH) -o $@ 
+		$(CC) -c -std=c++11 -O0 $(DEBUG) -fPIC $^ -I$(INCLUDE_PATH) -o $@ 
 				
 
 .PHONY: claen
@@ -35,7 +35,7 @@ $(OBJ_PATH)/%.o: $(SRC_PATH)/%.cpp
 		rm -rf $(OBJ_PATH) $(BIN_PATH) $(LIB_PATH)
 
 test: $(BIN_PATH)/$(PROG)
-		@cd $(TEST_PATH) && ../$(BIN_PATH)/$(PROG)
+		@cd $(TEST_PATH) && LD_LIBRARY_PATH=../$(LIB_PATH) ../$(BIN_PATH)/$(PROG)
 
 $(BIN_PATH)/$(PROG): $(TEST_PATH)/$(TEST_SRC)
-		$(CC) $(DEBUG) -L$(LIB_PATH) -I$(INCLUDE_PATH) $^ -o $@ $(LIBS)
+		$(CC) -std=c++11 $(DEBUG) -L$(LIB_PATH) -I$(INCLUDE_PATH) $^ -o $@ $(LIBS)

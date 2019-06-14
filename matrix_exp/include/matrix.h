@@ -9,17 +9,35 @@
 
 /// Type aliases
 typedef unsigned int IndexType;
-typedef float ElementType;
+typedef double ElementType;
+
+void reportError(const std::string& errMsg);
 
 struct Matrix {
-        Matrix() {}
+        IndexType rows;
+        IndexType cols;
+        std::vector<std::vector<ElementType>> matrix;
+
+        Matrix() : rows(0), cols(0) {}
         IndexType getWidth() const {
+                return cols;
         }
         IndexType getHeight() const {
+                return rows;
         }
         ElementType getElement(IndexType i, IndexType j) const {
+                if (i >= rows || j >= cols) {
+                        reportError("Out of range index");
+                        exit(2);
+                }
+                return matrix[i][j];
         }
         void setElement(IndexType i, IndexType j, ElementType e) {
+                if (i >= rows || j >= cols) {
+                        reportError("Out of range index");
+                        exit(2);
+                }
+                matrix[i][j] = e;
         }
 };
 
@@ -53,6 +71,5 @@ bool readMatrix(InputFile &f, Matrix &x);
 void writeMatrix(OutputFile &f, const Matrix &y, IndexType n);
 bool skipSymbols(std::ifstream& ifs);
 void resizeMatrix(Matrix &m, IndexType r, IndexType c);
-void reportError(const std::string& errMsg);
 
 #endif // MATRIX_H

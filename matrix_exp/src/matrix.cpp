@@ -63,6 +63,12 @@ void writeMatrix(OutputFile &f, const Matrix &y, IndexType n) {
 }
 
 void resizeMatrix(Matrix &m, IndexType r, IndexType c) {
+        m.rows = r;
+        m.cols = c;
+        m.matrix.resize(r);
+        for (IndexType i = 0; i < r; i++) {
+                m.matrix[i].resize(c);
+        }
 }
 
 void addMatrix(const Matrix &m1, const Matrix &m2, Matrix &x) {
@@ -100,7 +106,7 @@ bool checkCompatibility(const Matrix &m1, const Matrix &m2,
 }
 
 void reportError(const std::string& errMsg) {
-        std::cerr << errMsg << '\n';
+        std::cerr << "ERROR: " << errMsg << '\n';
 }
 
 void matrixExp() {
@@ -114,7 +120,7 @@ void matrixExp() {
                         if (!checkCompatibility(a, b, c, d)) {
                                 reportError("Matrices at location " +
                                             std::to_string(i) + 
-                                            "have incompatible sizes");
+                                            " have incompatible sizes");
                                 exit(2);
                         }
                         Matrix x1, x2, y;
